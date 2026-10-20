@@ -6,4 +6,4 @@
 - Synced: 2026-10-20
 
 Only the skills listed in the upstream `.claude-plugin/plugin.json` are mirrored.
-The sync workflow rewrites this file on every upstream change.
+The sync workflow rewrites this file when the upstream commit changes.

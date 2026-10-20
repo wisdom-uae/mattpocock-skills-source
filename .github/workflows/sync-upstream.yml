@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: sync-upstream
@@ -15,8 +16,11 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -24,14 +28,47 @@ jobs:
         run: git clone --depth 1 https://github.com/mattpocock/skills.git /tmp/upstream
       - name: Mirror published skills
         run: node scripts/sync-upstream.mjs /tmp/upstream
-      - name: Commit and push
+      - name: Queue review
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git config user.name "teamai-sync[bot]"
-          git config user.email "teamai-sync[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
+          set -euo pipefail
+
+          if [ -z "$(git status --porcelain)" ]; then
             echo "Already up to date"
             exit 0
           fi
+
+          git config user.name "teamai-sync[bot]"
+          git config user.email "teamai-sync[bot]@users.noreply.github.com"
+          branch="sync/upstream"
+          git checkout -B "$branch"
+          git add -A
           git commit -m "chore: sync mattpocock/skills upstream"
-          git push
+          git push --force origin "$branch"
+
+          existing_pr="$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing_pr" ]; then
+            echo "Updated existing PR #$existing_pr"
+            exit 0
+          fi
+
+          compare="https://github.com/${GITHUB_REPOSITORY}/compare/main...${branch}?expand=1"
+          short="$(git -C /tmp/upstream rev-parse --short HEAD)"
+          existing_issue="$(gh issue list --state open --limit 100 --json number,title --jq '.[] | select(.title == "Upstream update ready for review") | .number' | head -n1)"
+
+          if [ -n "$existing_issue" ]; then
+            gh issue comment "$existing_issue" --body "Updated to upstream \`$short\`: $compare"
+            echo "Updated issue #$existing_issue"
+            exit 0
+          fi
+
+          {
+            cat UPSTREAM.md
+            echo
+            echo "Create the pull request: $compare"
+            echo
+            echo "Merging publishes the mirror to every TeamAI subscriber on their next pull."
+          } > "$RUNNER_TEMP/issue-body.md"
+
+          gh issue create --title "Upstream update ready for review" --body-file "$RUNNER_TEMP/issue-body.md"
