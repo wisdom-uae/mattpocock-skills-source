@@ -1,0 +1,32 @@
+team: mattpocock-skills
+description: Public TeamAI mirror of mattpocock/skills (MIT), synced from upstream
+repo: https://github.com/wisdom-uae/mattpocock-skills-source.git
+provider: github
+publicSkills:
+  - ask-matt
+  - code-review
+  - codebase-design
+  - diagnosing-bugs
+  - domain-modeling
+  - grill-me
+  - grill-with-docs
+  - grilling
+  - handoff
+  - implement
+  - implement-spec
+  - improve-codebase-architecture
+  - pr
+  - prototype
+  - research
+  - retro
+  - setup-matt-pocock-skills
+  - tdd
+  - teach
+  - to-questionnaire
+  - to-spec
+  - to-tickets
+  - triage
+  - wait-what
+  - wayfinder
+  - wizard
+  - writing-for-agents

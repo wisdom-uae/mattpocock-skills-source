@@ -1,0 +1,37 @@
+name: Sync upstream
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Clone upstream
+        run: git clone --depth 1 https://github.com/mattpocock/skills.git /tmp/upstream
+      - name: Mirror published skills
+        run: node scripts/sync-upstream.mjs /tmp/upstream
+      - name: Commit and push
+        run: |
+          git config user.name "teamai-sync[bot]"
+          git config user.email "teamai-sync[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Already up to date"
+            exit 0
+          fi
+          git commit -m "chore: sync mattpocock/skills upstream"
+          git push
