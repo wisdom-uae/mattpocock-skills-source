@@ -8,7 +8,7 @@ A TeamAI public-skill mirror of [mattpocock/skills](https://github.com/mattpococ
 - `.github/workflows/sync-upstream.yml` runs daily at 03:17 UTC and on manual dispatch. When upstream changes, it force-updates a `sync/upstream` branch and opens (or comments on) an “Upstream update ready for review” issue containing a compare link.
 - Review flow: open the compare link, create the pull request, review the diff, merge. Merging publishes the mirror to every TeamAI subscriber on their next pull.
 - If an open pull request from `sync/upstream` already exists, the run updates that branch instead of opening another issue.
-- A run with no upstream change exits without a commit, branch update, or issue.
+- A run with no upstream change exits without a commit or branch update, and closes any open review issue once the mirror matches upstream.
 
 `wisdom-uae` organization policy blocks GitHub Actions from creating pull requests, which is why the workflow queues a compare link instead of opening the PR itself.
 
