@@ -1,9 +1,9 @@
 # Upstream
 
 - Repository: https://github.com/mattpocock/skills
-- Version: 1.3.1
-- Commit: `5beb35b040e3de97e54fa9e386d7e42d15c295c2`
-- Synced: 2026-10-20
+- Version: 1.3.2
+- Commit: `a496f5513d4a4cf889bc48e189e579f4b0bdf6aa`
+- Synced: 2026-10-31
 
 Only the skills listed in the upstream `.claude-plugin/plugin.json` are mirrored.
 The sync workflow rewrites this file when the upstream commit changes.
